@@ -1,0 +1,12 @@
+import turtle
+C=turtle.Screen()
+D=turtle.Turtle()
+D.color("orange")
+D.forward(150)
+D.right(-320)
+D.forward(150)
+D.right(-220)
+D.forward(300)
+D.right(-250)
+D.forward(100)
+C.exitonclick()
