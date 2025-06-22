@@ -1,0 +1,13 @@
+import turtle
+Love=turtle.Screen()
+H=turtle.Turtle()
+H.color("yellow")
+H.right(50)
+H.forward(200)
+H.right(130)
+H.forward(300)
+H.right(130)
+H.forward(250)
+H.right(-245)
+H.forward(50)
+Love.exitonclick()
