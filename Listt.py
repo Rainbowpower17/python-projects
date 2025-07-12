@@ -1,0 +1,10 @@
+A=[1,2.5,2/10,"Hello"]
+print(type(A))
+B=(23,6.56,23/100,"Hi")
+print(type(B))
+print(A[1])
+print(B[3])
+A[2]=23.6
+print(A)
+B[3]="Amazing"
+print(B)
