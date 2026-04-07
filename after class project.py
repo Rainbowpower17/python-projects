@@ -1,41 +1,94 @@
 import pygame
+import random
 
 pygame.init()
 
-screen_width,screen_height=500,500
+SPRITE_COLOR_CHANGE_EVENT = pygame.USEREVENT + 1
+BACKGROUND_COLOR_CHANGE_EVENT = pygame.USEREVENT + 2
 
-display_surface=pygame.display.set_mode((screen_width,screen_height))
+GREEN = pygame.Color('green') 
+LIGHTGREEN = pygame.Color('lightgreen')
+DARKGREEN = pygame.Color('darkgreen')
+YELLOW = pygame.Color('yellow')
+MAGENTA = pygame.Color('magenta')
+ORANGE = pygame.Color('orange')
+WHITE = pygame.Color('white')
 
-pygame.display.set_caption('Adding image and background')
+class Sprite(pygame.sprite.Sprite):
 
-background_image=pygame.transform.scale(
-    pygame.image.load('flower 3.jpg').convert(),(screen_width,screen_height))
+    def __init__(self, color, height, width):
+        super().__init__()
 
-cat_image=pygame.transform.scale(pygame.image.load('cat.jpg').convert_alpha(),(200,200))
+        # FIX: create image first
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
 
-cat_rect=cat_image.get_rect(center=(screen_width//2,screen_height//2-30))
+        self.rect = self.image.get_rect()
 
-text = pygame.font.Font(None, 36).render('I like flowers ', True, pygame.Color('pink'))
+        self.velocity = [random.choice([-1, 1]), random.choice([-1, 1])]
 
-text_rect = text.get_rect(center=(screen_width // 2, screen_height// 2 + 110))
+    def update(self):
+        self.rect.move_ip(self.velocity)
 
-def game_loop():
-    clock=pygame.time.Clock()
-    running=True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running=False
+        boundary_hit = False
 
-        display_surface.blit(background_image,(0,0))
-        display_surface.blit(cat_image,cat_rect)
-        display_surface.blit(text,text_rect)
+        if self.rect.left <= 0 or self.rect.right >= 500:
+            self.velocity[0] = -self.velocity[0]
 
-        pygame.display.flip()
+        if self.rect.top <= 0 or self.rect.bottom >= 400:
+            self.velocity[1] = -self.velocity[1]
+            boundary_hit = True
+        
+        if boundary_hit:
+            pygame.event.post(pygame.event.Event(SPRITE_COLOR_CHANGE_EVENT))
+            pygame.event.post(pygame.event.Event(BACKGROUND_COLOR_CHANGE_EVENT))
 
-        clock.tick(30)
+    def change_color(self):
+        # FIX: correct random.choice syntax
+        self.image.fill(random.choice([YELLOW, MAGENTA, ORANGE, WHITE]))
 
-    pygame.quit()
+def change_background_color():
+    global bg_color
+    bg_color = random.choice([GREEN, LIGHTGREEN, DARKGREEN])
 
+all_sprites_list = pygame.sprite.Group()
 
-if __name__ == '__main__': game_loop()
+# Create sprite
+sp1 = Sprite(WHITE, 20, 30)
+
+# Random position
+sp1.rect.x = random.randint(0, 480)
+sp1.rect.y = random.randint(0, 370)
+
+all_sprites_list.add(sp1)
+
+# Window
+screen = pygame.display.set_mode((500, 400))
+pygame.display.set_caption("Boundary Sprite")
+
+bg_color = GREEN
+screen.fill(bg_color)
+
+# Use better variable name
+running = True
+clock = pygame.time.Clock()
+
+# Game loop
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == SPRITE_COLOR_CHANGE_EVENT:
+            sp1.change_color()
+        elif event.type == BACKGROUND_COLOR_CHANGE_EVENT:
+            change_background_color()
+
+    all_sprites_list.update()
+
+    screen.fill(bg_color)
+    all_sprites_list.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(240)
+
+pygame.quit()
